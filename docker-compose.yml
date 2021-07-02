@@ -1,0 +1,33 @@
+# version du fichier et de son vocabulaire
+# https://docs.docker.com/compose/compose-file/compose-versioning/#version-3
+version: "3.5"
+
+networks: # permet de créer manuellement ses réseaux
+    zoo_net:
+      ipam:
+        driver: default # accès vers internet par défaut. (none, host, bridge)
+        config:
+          - subnet: 10.12.0.0/24
+
+
+services: # ensemble des applications que nous voulons démarrer
+    # le nom du service est au choix de nous même.
+    gitlab: # https://docs.gitlab.com/ee/install/docker.html
+        #======================== CONTENEUR ====================#
+        # permet de télécharger l'image docker sur le serveur : https://hub.docker.com/r/gitlab/gitlab-ce
+        image: gitlab/gitlab-ce:14.0.0-ce.0 # on fixe toujours la version de l'image choisie
+        # nom du service/conteneur affiché dans le terminal avec la command : docker ps -a
+        container_name: td_gitlab
+        #======================== RESEAU =======================# 
+        networks: # selection du ou des réseaux dans lequel nous intégrons ce service
+            - zoo_net
+        # la redirection des ports entre le proxy et le conteneur
+        #  4443 ==> proxy ==> gitlab:443 => logiciel https
+        #  8080 ==> proxy ==> gitlab:80  => logiciel http
+        #  22   ==> proxy ==> gitlab:22  => logiciel ssh
+        ports:
+            - 4443:443
+            - 8080:80
+            - 22:22
+
+
